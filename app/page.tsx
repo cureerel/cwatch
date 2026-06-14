@@ -1,7 +1,7 @@
-// import { Suspense } from "react";
+
 import { HeroSection } from "@/components/HeroSection";
-// import { MovieList } from "@/components/MovieList";
 import { HomeClient } from "@/components/HomeClient";
+import { Metadata } from "next";
 import {
   getTrending,
   getPopular,
@@ -10,6 +10,28 @@ import {
   getUpcoming,
   getGenres,
 } from "@/lib/api";
+export const metadata: Metadata = {
+  metadataBase: new URL("https://cwatch.cureerel.com"),
+
+  title: "cwatch",
+  description: "Your cinematic universe. Movies, TV shows, all in one place.",
+
+  keywords: ["movies", "tv shows", "streaming", "watch online"],
+
+  openGraph: {
+    title: "cWatch — Tap on it",
+    description: "Your cinematic universe.",
+    type: "website",
+    images: ["/preview.png"],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "cWatch — Tap on it",
+    description: "Your cinematic universe.",
+    images: ["/preview.png"],
+  },
+};
 
 export default async function HomePage() {
   const [trending, popular, topRated, nowPlaying, upcoming, genresData] =
@@ -30,12 +52,12 @@ export default async function HomePage() {
       {/* Content below hero */}
       <div className="relative z-10 -mt-2">
         <HomeClient
+          genres={genresData.genres}
           trending={trending.results}
           popular={popular.results}
           topRated={topRated.results}
           nowPlaying={nowPlaying.results}
           upcoming={upcoming.results}
-          genres={genresData.genres}
         />
       </div>
     </div>
