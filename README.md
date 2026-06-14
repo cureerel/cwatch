@@ -7,8 +7,8 @@ cWatch is more  a public showcase of my work, frontend design decisions,  archit
 ## Preview 
 
 <p align="center">
-  <img src="/preview.png" width="75%" />
-  <img src="/mobile-preview.png" width="25%" />
+  <img src="./.github/assets/preview.png" width="75%" />
+  <img src="./.github/assets/mobile-preview.png" width="25%" />
 </p>
 
 ## Features

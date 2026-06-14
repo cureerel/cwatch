@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.vidrock.net",
       },
+      {
+        protocol: "https",
+        hostname: "cwatch.cureerel.com",
+      },
     ],
   },
 };
