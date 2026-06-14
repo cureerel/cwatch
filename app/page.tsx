@@ -10,25 +10,27 @@ import {
   getUpcoming,
   getGenres,
 } from "@/lib/api";
+
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://cwatch.cureerel.com"),
 
-  title: "cwatch",
-  description: "Your cinematic universe. Movies, TV shows, all in one place.",
+  title: "cwatch | Play Cinema",
+  description: "Discover, Click and Enjoy Binge Watch. Movies, TV shows, all in one place.",
 
   keywords: ["movies", "tv shows", "streaming", "watch online"],
 
   openGraph: {
-    title: "cWatch — Tap on it",
-    description: "Your cinematic universe.",
+    title: "cwatch | Play Cinema",
+    description: "Discover, Click and Enjoy Binge Watch. Movies, TV shows, all in one place.",
     type: "website",
     images: ["/preview.png"],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "cWatch — Tap on it",
-    description: "Your cinematic universe.",
+    title: "cwatch | Play Cinema",
+    description: "Discover, Click and Enjoy Binge Watch. Movies, TV shows, all in one place.",
     images: ["/preview.png"],
   },
 };

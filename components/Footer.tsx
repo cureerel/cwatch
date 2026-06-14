@@ -7,7 +7,6 @@ import { Github, Twitter } from "lucide-react";
 export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30 mt-16 pb-20 md:pb-0">
-      {/* Note: pb-20 md:pb-0 adds extra bottom padding on mobile so the floating navbar doesn't cover the footer links */}
       
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
@@ -23,9 +22,6 @@ export function Footer() {
                 priority   
                 className="object-contain"
               />
-              <span className="font-bold text-lg tracking-tight text-foreground">
-                cwatch
-              </span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Discover, search, tap, and play. Built for portfolio showcase purposes.
@@ -55,7 +51,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            {new Date().getFullYear()} cwatch
+            {new Date().getFullYear()} • cwatch
           </p>
           <p className="text-xs text-muted-foreground">
             Powered by{" "}
