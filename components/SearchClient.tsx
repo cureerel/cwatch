@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { gsap } from "gsap";
 import { Search, X, TrendingUp, Film, Tv } from "lucide-react";
@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 
 type Filter = "all" | "movie" | "tv";
 
-export function SearchClient() {
+// ── 1. The Inner Component (Uses useSearchParams) ──────────────────────────
+function SearchContent() {
   const dispatch = useAppDispatch();
   const searchQuery = useAppSelector((s: RootState) => s.ui.searchQuery);
   const searchResults = useAppSelector(
@@ -252,5 +253,31 @@ export function SearchClient() {
         </div>
       )}
     </div>
+  );
+}
+
+
+export function SearchClient() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16 pt-12">
+          <div className="text-center mb-10">
+            <div className="h-16 w-72 bg-muted rounded-lg mx-auto mb-4 animate-pulse" />
+            <div className="h-4 w-48 bg-muted rounded-lg mx-auto animate-pulse" />
+          </div>
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="h-14 bg-muted rounded-2xl animate-pulse" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <MovieCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
   );
 }

@@ -1,0 +1,33 @@
+<svg width="100%" viewBox="0 0 680 160" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>cwatch logo</title>
+  <desc>cWatch - play at your fingertips</desc>
+  <defs>
+    <clipPath id="circ">
+      <circle cx="100" cy="80" r="60"/>
+    </clipPath>
+  </defs>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&amp;display=swap');
+  </style>
+  <circle cx="100" cy="80" r="60" fill="#1a0800"/>
+  <g clip-path="url(#circ)">
+    <circle cx="100" cy="80" r="52" fill="none" stroke="#c0390b" stroke-width="1.5" opacity="0.4"/>
+    <circle cx="100" cy="80" r="44" fill="none" stroke="#e8520d" stroke-width="0.8" opacity="0.25"/>
+    <polygon points="100,44 103.5,76.5 136,80 103.5,83.5 100,116 96.5,83.5 64,80 96.5,76.5" fill="#e8520d" opacity="0.95"/>
+    <polygon points="124,52 125.8,58.2 132,60 125.8,61.8 124,68 122.2,61.8 116,60 122.2,58.2" fill="#ff6b35" opacity="0.9"/>
+    <polygon points="72,56 73.2,60.8 78,62 73.2,63.2 72,68 70.8,63.2 66,62 70.8,60.8" fill="#ffb347" opacity="0.8"/>
+    <circle cx="86" cy="46" r="2.2" fill="#ffcca0" opacity="0.85"/>
+    <circle cx="114" cy="42" r="1.6" fill="#ff6b35" opacity="0.8"/>
+    <circle cx="130" cy="70" r="1.8" fill="#ffb347" opacity="0.75"/>
+    <circle cx="68" cy="74" r="1.5" fill="#ffcca0" opacity="0.7"/>
+    <circle cx="76" cy="100" r="1.4" fill="#ff6b35" opacity="0.65"/>
+    <circle cx="124" cy="104" r="1.6" fill="#ffb347" opacity="0.7"/>
+    <circle cx="90" cy="116" r="1.3" fill="#ffcca0" opacity="0.6"/>
+    <circle cx="110" cy="118" r="1.5" fill="#ff6b35" opacity="0.65"/>
+    <polygon points="86,96 87,100 91,101 87,102 86,106 85,102 81,101 85,100" fill="#e8520d" opacity="0.7"/>
+    <polygon points="114,92 115,95.5 118.5,96.5 115,97.5 114,101 113,97.5 109.5,96.5 113,95.5" fill="#ffb347" opacity="0.65"/>
+    <circle cx="78" cy="58" r="7" fill="#ffddaa" opacity="0.9"/>
+    <circle cx="82" cy="55" r="6" fill="#1a0800" opacity="1"/>
+  </g>
+  <text x="175" y="109" font-family="Inter, sans-serif" font-size="88" font-weight="700" fill="#e8520d" letter-spacing="-3">cwatch</text>
+</svg>

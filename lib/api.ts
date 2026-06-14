@@ -1,4 +1,4 @@
-import type { Movie, ApiResponse, GenreListResponse } from "@/types";
+import type { Movie, ApiResponse, GenreListResponse, Video } from "@/types";
 
 const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY ?? "";
 const TMDB_BASE = "https://api.themoviedb.org/3";
@@ -18,7 +18,7 @@ async function tmdb<T>(
   return res.json() as Promise<T>;
 }
 
-// ── Image helpers ──────────────────────────────────────────────────────────
+// Image helpers
 export function getPosterUrl(
   path: string | null,
   size: "w342" | "w500" | "w780" | "original" = "w500",
@@ -44,7 +44,7 @@ export function getReleaseYear(movie: Movie): string {
   return date ? new Date(date).getFullYear().toString() : "—";
 }
 
-// ── TMDB Endpoints ─────────────────────────────────────────────────────────
+// TMDB Endpoints 
 export const getTrending = (
   mediaType: "movie" | "tv" | "all" = "all",
   timeWindow: "day" | "week" = "week",
@@ -92,15 +92,14 @@ export const discoverByGenre = (
     sort_by: "popularity.desc",
   });
 
-// ── VidRock embed URLs (no API key needed) ─────────────────────────────────
-// Docs: https://vidrock.net
+// embed URLs
 export const getMovieEmbedUrl = (tmdbId: number) =>
   `${VIDROCK_BASE}/movie/${tmdbId}`;
 
 export const getTvEmbedUrl = (tmdbId: number, season = 1, episode = 1) =>
   `${VIDROCK_BASE}/tv/${tmdbId}/${season}/${episode}`;
 
-// ── VidRock content lists (all available titles) ───────────────────────────
+//  content lists 
 export interface VidRockItem {
   id: string; // tmdb id as string
   imdb_id?: string;
@@ -137,4 +136,33 @@ export async function getSeasonDetails(tvId: number, seasonNumber: number) {
   if (!res.ok)
     throw new Error(`TMDB error ${res.status}: season ${seasonNumber}`);
   return res.json();
+}
+
+
+export async function getMovieVideos(movieId: number): Promise<Video[]> {
+  try {
+    const url = new URL(`${TMDB_BASE}/movie/${movieId}/videos`);
+    url.searchParams.set("api_key", TMDB_API_KEY);
+    url.searchParams.set("language", "en-US");
+    const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.results || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getTvVideos(showId: number): Promise<Video[]> {
+  try {
+    const url = new URL(`${TMDB_BASE}/tv/${showId}/videos`);
+    url.searchParams.set("api_key", TMDB_API_KEY);
+    url.searchParams.set("language", "en-US");
+    const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.results || [];
+  } catch {
+    return [];
+  }
 }

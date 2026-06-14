@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTvDetails } from "@/lib/api";
-import { TvPageClient } from "@/components/TvPageClient";
+import { TvPageClient } from "@/components/tv/TvPageClient";
 import type { Metadata } from "next";
 
 interface TvPageProps {

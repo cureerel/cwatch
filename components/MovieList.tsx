@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { MovieCard } from "@/components/MovieCard";
 import { MovieCardSkeleton } from "@/components/MovieCardSkeleton";
@@ -20,6 +20,7 @@ interface MovieListProps {
   showRank?: boolean;
   href?: string;
   className?: string;
+  showScrollButtons?: boolean; // new prop to enable scroll buttons
 }
 
 export function MovieList({
@@ -30,10 +31,13 @@ export function MovieList({
   showRank = false,
   href,
   className,
+  showScrollButtons = false,
 }: MovieListProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const [showLeftButton, setShowLeftButton] = useState(false);
+  const [showRightButton, setShowRightButton] = useState(false);
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -76,8 +80,38 @@ export function MovieList({
     return () => ctx.revert();
   }, [movies]);
 
+  // Check scroll position to show/hide buttons
+  useEffect(() => {
+    const container = listRef.current;
+    if (!container || !showScrollButtons) return;
+
+    const updateButtons = () => {
+      setShowLeftButton(container.scrollLeft > 20);
+      setShowRightButton(
+        container.scrollLeft + container.clientWidth < container.scrollWidth - 20
+      );
+    };
+
+    updateButtons();
+    container.addEventListener("scroll", updateButtons);
+    window.addEventListener("resize", updateButtons);
+    return () => {
+      container.removeEventListener("scroll", updateButtons);
+      window.removeEventListener("resize", updateButtons);
+    };
+  }, [movies, showScrollButtons]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (!listRef.current) return;
+    const scrollAmount = listRef.current.clientWidth * 0.8;
+    listRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <section ref={sectionRef} className={cn("py-4", className)}>
+    <section ref={sectionRef} className={cn("py-4 overflow-hidden", className)}>
       <div className="flex items-center justify-between px-4 md:px-6 mb-4">
         <h2
           ref={titleRef}
@@ -93,7 +127,7 @@ export function MovieList({
         </h2>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground hidden sm:block tracking-widest uppercase">
-            Drag to next →
+            Drag to scroll →
           </span>
           {href && (
             <Link
@@ -105,10 +139,47 @@ export function MovieList({
           )}
         </div>
       </div>
+
+      {/* Scroll Buttons (optional) */}
+      {showScrollButtons && (
+        <>
+          {showLeftButton && (
+            <button
+              onClick={() => scroll("left")}
+              className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-background/80 backdrop-blur rounded-full p-2 shadow-lg border border-border hover:bg-accent/20 transition-all"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          {showRightButton && (
+            <button
+              onClick={() => scroll("right")}
+              className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-background/80 backdrop-blur rounded-full p-2 shadow-lg border border-border hover:bg-accent/20 transition-all"
+              aria-label="Scroll right"
+            >
+              <ChevronRightIcon className="h-5 w-5" />
+            </button>
+          )}
+        </>
+      )}
+
+      {/* Horizontal Scroll Container - no visible scrollbar */}
       <div
         ref={listRef}
-        className="flex gap-3 overflow-x-auto scrollbar-hide px-4 md:px-6 pb-2"
+        className="flex gap-3 overflow-x-auto overflow-y-hidden scroll-smooth pb-2 px-4 md:px-6"
+        style={{
+          scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none", // IE/Edge
+          WebkitOverflowScrolling: "touch",
+        }}
       >
+        {/* Hide scrollbar for Chrome/Safari */}
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         {isLoading
           ? Array.from({ length: 8 }).map((_, i) => (
               <MovieCardSkeleton key={i} />
@@ -119,7 +190,7 @@ export function MovieList({
                 movie={movie}
                 mediaType={mediaType}
                 rank={showRank ? i + 1 : undefined}
-                className="movie-card-item w-35 sm:w-40 md:w-45"
+                className="movie-card-item w-35 sm:w-40 md:w-45 shrink-0"
               />
             ))}
       </div>

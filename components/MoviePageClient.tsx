@@ -1,28 +1,29 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import {
-  Play,
   Plus,
   Star,
   Clock,
   Calendar,
   Globe,
   BookmarkCheck,
+  Play,
+  X,
 } from "lucide-react";
 import {
   getBackdropUrl,
   getPosterUrl,
   getTitle,
   getReleaseYear,
+  getMovieVideos,
   getMovieEmbedUrl,
 } from "@/lib/api";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import { VideoPlayer } from "@/components/VideoPlayer";
 import { cn } from "@/lib/utils";
-import type { Movie, MediaType } from "@/types";
+import type { Movie, MediaType, Video } from "@/types";
 
 interface MoviePageClientProps {
   movie: Movie;
@@ -30,7 +31,6 @@ interface MoviePageClientProps {
 }
 
 export function MoviePageClient({ movie, mediaType }: MoviePageClientProps) {
-  const [playing, setPlaying] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const { toggle, isInWatchlist } = useWatchlist();
@@ -39,8 +39,53 @@ export function MoviePageClient({ movie, mediaType }: MoviePageClientProps) {
   const title = getTitle(movie);
   const year = getReleaseYear(movie);
   const rating = movie.vote_average?.toFixed(1) ?? "N/A";
-  const embedUrl = getMovieEmbedUrl(movie.id);
 
+  // Video modal state
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalVideoUrl, setModalVideoUrl] = useState<string | null>(null);
+  const [modalTitle, setModalTitle] = useState("");
+  const [isLoadingUrl, setIsLoadingUrl] = useState(true);
+
+  // Fetch embed URL and trailer on mount
+  useEffect(() => {
+    async function fetchVideoSources() {
+      setIsLoadingUrl(true);
+      try {
+        const url = getMovieEmbedUrl(movie.id);
+        setEmbedUrl(url);
+
+        const videos = await getMovieVideos(movie.id);
+        const trailer = videos.find(
+          (v: Video) => v.type === "Trailer" && v.site === "YouTube"
+        );
+        if (trailer) setTrailerKey(trailer.key);
+      } catch (error) {
+        console.error("Failed to fetch video sources:", error);
+      } finally {
+        setIsLoadingUrl(false);
+      }
+    }
+    fetchVideoSources();
+  }, [movie.id]);
+
+  // Open modal with movie or trailer
+  const openMovie = () => {
+    if (!embedUrl) return;
+    setModalVideoUrl(embedUrl);
+    setModalTitle(`${title} - Full Movie`);
+    setModalOpen(true);
+  };
+
+  const openTrailer = () => {
+    if (!trailerKey) return;
+    setModalVideoUrl(`https://www.youtube.com/embed/${trailerKey}?autoplay=1`);
+    setModalTitle(`${title} - Trailer`);
+    setModalOpen(true);
+  };
+
+  // Entrance animations
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -57,42 +102,38 @@ export function MoviePageClient({ movie, mediaType }: MoviePageClientProps) {
     return () => ctx.revert();
   }, []);
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [modalOpen]);
+
   return (
-    <div className="min-h-screen bg-background top-0 ">
-      {/* Player or Backdrop */}
+    <div className="min-h-screen bg-background top-0">
+      {/* Hero Banner */}
       <div ref={heroRef}>
-        {playing ? (
-          <VideoPlayer
-            src={embedUrl}
-            title={title}
-            onClose={() => setPlaying(false)}
+        <div className="relative w-full aspect-video max-h-[70vh] bg-black">
+          <Image
+            src={getBackdropUrl(movie.backdrop_path, "original")}
+            alt={title}
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
           />
-        ) : (
-          <div className="relative w-full aspect-video max-h-[70vh] bg-black">
-            <Image
-              src={getBackdropUrl(movie.backdrop_path, "original")}
-              alt={title}
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-background via-black/30 to-transparent" />
-            <button
-              onClick={() => setPlaying(true)}
-              className="absolute inset-0 flex items-center justify-center group"
-              aria-label="Play"
-            >
-              <div className="h-20 w-20 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all duration-300 shadow-2xl shadow-primary/40">
-                <Play className="h-8 w-8 text-primary-foreground fill-current ml-1" />
-              </div>
-            </button>
-          </div>
-        )}
+          <div className="absolute inset-0 bg-linear-to-t from-background via-black/30 to-transparent" />
+        </div>
       </div>
 
-      {/* Info */}
+      {/* Main Content */}
       <div ref={infoRef} className="mx-auto max-w-6xl px-4 md:px-8 py-8">
+        {/* Movie Details */}
         <div className="flex flex-col md:flex-row gap-8">
           <div className="hidden md:block shrink-0">
             <div className="relative w-48 aspect-2/3 rounded-2xl overflow-hidden shadow-2xl border border-border">
@@ -155,14 +196,26 @@ export function MoviePageClient({ movie, mediaType }: MoviePageClientProps) {
               {movie.overview}
             </p>
 
+            {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 pt-2">
-              <button
-                onClick={() => setPlaying(true)}
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-7 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
-              >
-                <Play className="h-4 w-4 fill-current" />
-                {playing ? "Restart" : "Play Now"}
-              </button>
+              {!isLoadingUrl && embedUrl && (
+                <button
+                  onClick={openMovie}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  Play Movie
+                </button>
+              )}
+              {trailerKey && (
+                <button
+                  onClick={openTrailer}
+                  className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  Play Trailer
+                </button>
+              )}
               <button
                 onClick={() => toggle(movie, mediaType)}
                 className={cn(
@@ -183,7 +236,7 @@ export function MoviePageClient({ movie, mediaType }: MoviePageClientProps) {
           </div>
         </div>
 
-        {/* Cast */}
+        {/* ── CAST SECTION (unchanged) ── */}
         {movie.credits?.cast && movie.credits.cast.length > 0 && (
           <div className="mt-12">
             <h2 className="font-display text-2xl tracking-wider uppercase text-foreground mb-4">
@@ -219,6 +272,36 @@ export function MoviePageClient({ movie, mediaType }: MoviePageClientProps) {
           </div>
         )}
       </div>
+
+      {/* ── MODAL POPUP FOR VIDEO ── */}
+      {modalOpen && modalVideoUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-5xl mx-4 bg-black rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setModalOpen(false)}
+              className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-2 hover:bg-black/80 transition"
+              aria-label="Close video"
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            <div className="relative pt-[56.25%]">
+              <iframe
+                src={modalVideoUrl}
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+                title={modalTitle}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

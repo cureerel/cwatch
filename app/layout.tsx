@@ -11,13 +11,25 @@ import { cn } from "@/lib/utils";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "CWatch — Stream Everything",
+  metadataBase: new URL("https://cwatch.cureerel.com"),
+
+  title: "cwatch",
   description: "Your cinematic universe. Movies, TV shows, all in one place.",
+
   keywords: ["movies", "tv shows", "streaming", "watch online"],
+
   openGraph: {
-    title: "CWatch — Stream Everything",
+    title: "cWatch — Tap on it",
     description: "Your cinematic universe.",
     type: "website",
+    images: ["/preview.png"],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "cWatch — Tap on it",
+    description: "Your cinematic universe.",
+    images: ["/preview.png"],
   },
 };
 
